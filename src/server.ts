@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Contact, PrismaClient } from "@prisma/client";
 import { log } from "console";
 
 // Create an instance of the Express app
@@ -75,8 +75,8 @@ app.post("/identify", async (req: Request, res: Response) => {
   });
 
   // Find the primary contact and secondary contacts
-  const primaryContact = contacts.find((c) => c.linkPrecedence === "primary");
-  const secondaryContacts = contacts.filter((c) => c.id !== primaryContact?.id);
+  const primaryContact = contacts.find((c: Contact) => c.linkPrecedence === "primary");
+  const secondaryContacts = contacts.filter((c: Contact) => c.id !== primaryContact?.id);
 
   const newSecondaryContact =
     contacts.length > 0 &&
@@ -102,7 +102,7 @@ app.post("/identify", async (req: Request, res: Response) => {
   // If there are other contacts with "primary" precedence, update them to "secondary"
   if (
     primaryContact &&
-    secondaryContacts.some((c) => c.linkPrecedence === "primary")
+    secondaryContacts.some((c:Contact) => c.linkPrecedence === "primary")
   ) {
     const oldPrimaryContact = primaryContact;
     const otherPrimaryContacts = secondaryContacts.filter(
@@ -110,7 +110,7 @@ app.post("/identify", async (req: Request, res: Response) => {
     );
 
     await Promise.all(
-      otherPrimaryContacts.map((c) =>
+      otherPrimaryContacts.map((c: Contact) =>
         prisma.contact.update({
           where: { id: c.id },
           data: {
@@ -134,18 +134,18 @@ app.post("/identify", async (req: Request, res: Response) => {
 
   // Filter out secondary contacts
   const secondaryContacts_updated = contacts_updated.filter(
-    (c) => c.linkPrecedence === "secondary"
+    (c: Contact) => c.linkPrecedence === "secondary"
   );
 
   // Create a unique set of emails and phone numbers
   const emails = Array.from(
-    new Set(contacts_updated.map((c) => c.email).filter(Boolean))
+    new Set(contacts_updated.map((c:Contact) => c.email).filter(Boolean))
   );
   const phoneNumbers = Array.from(
-    new Set(contacts_updated.map((c) => c.phoneNumber).filter(Boolean))
+    new Set(contacts_updated.map((c: Contact) => c.phoneNumber).filter(Boolean))
   );
   const secondaryContactIds = Array.from(
-    new Set(secondaryContacts_updated.map((c) => c.id))
+    new Set(secondaryContacts_updated.map((c: Contact) => c.id))
   );
 
   // Return the primary contact ID, emails, phone numbers, and secondary contact IDs
