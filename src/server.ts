@@ -106,7 +106,7 @@ app.post("/identify", async (req: Request, res: Response) => {
   ) {
     const oldPrimaryContact = primaryContact;
     const otherPrimaryContacts = secondaryContacts.filter(
-      (c) => c.linkPrecedence === "primary"
+      (c: Contact) => c.linkPrecedence === "primary"
     );
 
     await Promise.all(
